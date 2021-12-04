@@ -3,6 +3,12 @@ pub struct Pos {
     depth: i32
 }
 
+pub struct PosAim {
+    horiz: i32,
+    depth: i32,
+    aim: i32
+}
+
 #[derive(PartialEq, Eq, Debug)]
 pub enum Step {
     Horiz(i32),
@@ -25,7 +31,6 @@ pub fn input_generator(input: &str) -> Vec<Step> {
 
 #[aoc(day2, part1)]
 pub fn solve_part1(input: &[Step]) -> i32 {
-    // let mut pos = Pos(0, 0);
     let mut pos = Pos {horiz: 0, depth: 0};
     for step in input {
         match step {
@@ -36,10 +41,24 @@ pub fn solve_part1(input: &[Step]) -> i32 {
     pos.horiz * pos.depth
 }
 
+#[aoc(day2, part2)]
+pub fn solve_part2(input: &[Step]) -> i32 {
+    let mut pos = PosAim {horiz:0, depth:0, aim:0};
+    for step in input {
+        match step {
+            Step::Horiz(x) => {
+                pos.horiz += x;
+                pos.depth += pos.aim * x;
+            },
+            Step::Depth(x) => pos.aim += x
+        }
+    }
+    pos.horiz * pos.depth
+}
 
 #[cfg(test)]
 mod tests{
-    use super::{solve_part1, input_generator, Step};
+    use super::{solve_part1, solve_part2, input_generator, Step};
 
     const INPUT: &str = "forward 5
 down 5
@@ -71,6 +90,11 @@ forward 2";
     #[test]
     fn test_part1() {
         assert_eq!(solve_part1(&input_generator(INPUT)), 150);
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(solve_part2(&input_generator(INPUT)), 900);
     }
 
 }
