@@ -49,6 +49,7 @@ pub fn solve_part1(input: &[BitCounter]) -> u32 {
     gamma * epsilon
 }
 
+#[derive(Copy, Clone)]
 enum Criterion {
     Oxygen,
     CO2,
@@ -79,14 +80,36 @@ fn filter_numbers<'a>(input: &[&'a [u8]], bit: usize, criterion: Criterion) -> V
     result
 }
 
+// input could also be mutable (clone before passing)
+fn iterated_filter(input: &[&[u8]], criterion: Criterion) -> Vec<u8> {
+    let n_bits: usize = input[0].len();
+    let mut input: Vec<&[u8]> = input.to_vec();
+    for bit in 0..n_bits {
+        input = filter_numbers(&input, bit, criterion);
+        match input.len() {
+            0 => panic!("No numbers remaining"),
+            1 => return input[0].to_vec(),
+            _ => ()
+        }
+    }
+    panic!("Exhausted all filters")
+}
+
 // #[aoc(day3, part2)]
 // pub fn solve_part2(input: &str) -> u32 {
+//     let input: Vec<&[u8]> = input.lines()
+//         .map(|num| num.as_bytes())
+//         .collect();
+//     0
     
 // }
 
 #[cfg(test)]
 mod tests {
-    use super::{BitCounter, count_bits, solve_part1};
+    use super::{
+        BitCounter, count_bits, solve_part1,
+        filter_numbers, Criterion, iterated_filter
+    };
 
     const INPUT: &str = "00100
 11110
@@ -120,7 +143,6 @@ mod tests {
 
     #[test]
     fn test_filter() {
-        use super::{filter_numbers,Criterion};
         let input: Vec<&[u8]> = INPUT.lines().map(|num| num.as_bytes()).collect();
         let expected_result: Vec<&[u8]> = vec![
             input[0],
@@ -134,4 +156,12 @@ mod tests {
             expected_result
         );
     }
+
+    #[test]
+    fn test_iterated_filter() {
+        let input: Vec<&[u8]> = INPUT.lines().map(|num| num.as_bytes()).collect();
+        let expected_result = "10111".as_bytes().to_vec();
+        assert_eq!(iterated_filter(&input,Criterion::Oxygen), expected_result);
+    }
+
 }
