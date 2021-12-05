@@ -49,6 +49,41 @@ pub fn solve_part1(input: &[BitCounter]) -> u32 {
     gamma * epsilon
 }
 
+enum Criterion {
+    Oxygen,
+    CO2,
+}
+
+fn filter_numbers<'a>(input: &[&'a [u8]], bit: usize, criterion: Criterion) -> Vec<&'a [u8]> {
+    let mut counter = BitCounter::new();
+    input.iter().for_each(|num| match num[bit] {
+        b'0' => counter.zeros += 1,
+        b'1' => counter.ones += 1,
+        _ => panic!("invalid input bit")
+    });
+    let keep_bit = match (criterion, counter.ones.cmp(&counter.zeros)) {
+        (Criterion::Oxygen, Ordering::Greater) => b'1',
+        (Criterion::Oxygen, Ordering::Equal) => b'1',
+        (Criterion::Oxygen, Ordering::Less) => b'0',
+        (Criterion::CO2, Ordering::Greater) => b'0',
+        (Criterion::CO2, Ordering::Equal) => b'0',
+        (Criterion::CO2, Ordering::Less) => b'1',
+    };
+
+    let mut result = Vec::<&[u8]>::new();
+
+    input.iter()
+        .filter(|num| num[bit] == keep_bit)
+        .for_each(|num| result.push(&num));
+
+    result
+}
+
+// #[aoc(day3, part2)]
+// pub fn solve_part2(input: &str) -> u32 {
+    
+// }
+
 #[cfg(test)]
 mod tests {
     use super::{BitCounter, count_bits, solve_part1};
@@ -81,5 +116,22 @@ mod tests {
     #[test]
     fn test_part1() {
         assert_eq!(solve_part1(&COUNTS), 198u32);
+    }
+
+    #[test]
+    fn test_filter() {
+        use super::{filter_numbers,Criterion};
+        let input: Vec<&[u8]> = INPUT.lines().map(|num| num.as_bytes()).collect();
+        let expected_result: Vec<&[u8]> = vec![
+            input[0],
+            input[5],
+            input[6],
+            input[10],
+            input[11]
+        ];
+        assert_eq!(
+            filter_numbers(&input, 0, Criterion::CO2),
+            expected_result
+        );
     }
 }
