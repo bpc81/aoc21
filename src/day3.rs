@@ -12,27 +12,51 @@ impl BitCounter {
     }
 }
 
-#[aoc_generator(day3)]
-pub fn count_bits(input: &str) -> Vec<BitCounter> {
-    let mut lines = input.lines().peekable();
-    let n_bits = lines.peek().unwrap().len();
+fn count_bits(input:&[Vec<u8>]) -> Vec<BitCounter> {
+    let n_bits = input[0].len();
     let mut counters = Vec::<BitCounter>::new();
     for _ in 0..n_bits {counters.push(BitCounter::new())}
-
-    for line in lines {
-        for (counter, bit) in counters.iter_mut().zip(line.bytes()) {
+    for num in input {
+        for (counter,bit) in counters.iter_mut().zip(num.iter()) {
             match bit {
                 b'0' => counter.zeros += 1,
                 b'1' => counter.ones += 1,
                 _ => panic!("invalid input character")
             }
-        } 
+        }
     }
     counters
 }
 
+// #[aoc_generator(day3)]
+// pub fn count_bits(input: &str) -> Vec<BitCounter> {
+//     let mut lines = input.lines().peekable();
+//     let n_bits = lines.peek().unwrap().len();
+//     let mut counters = Vec::<BitCounter>::new();
+//     for _ in 0..n_bits {counters.push(BitCounter::new())}
+
+//     for line in lines {
+//         for (counter, bit) in counters.iter_mut().zip(line.bytes()) {
+//             match bit {
+//                 b'0' => counter.zeros += 1,
+//                 b'1' => counter.ones += 1,
+//                 _ => panic!("invalid input character")
+//             }
+//         } 
+//     }
+//     counters
+// }
+
+#[aoc_generator(day3)]
+pub fn parse_part2(input: &str) -> Vec<Vec<u8>> {
+    input.lines().map(|num| num.as_bytes().to_vec()).collect()
+}
+
+
 #[aoc(day3, part1)]
-pub fn solve_part1(input: &[BitCounter]) -> u32 {
+pub fn solve_part1(input: &[Vec<u8>]) -> u32 {
+    let input = count_bits(input);
+// pub fn solve_part1(input: &[BitCounter]) -> u32 {
     let mut gamma: u32 = 0;
     let mut epsilon: u32 = 0;
     for (pos,counts) in input.iter().rev().enumerate() {
@@ -95,19 +119,21 @@ fn iterated_filter(input: &[&[u8]], criterion: Criterion) -> Vec<u8> {
     panic!("Exhausted all filters")
 }
 
-// #[aoc(day3, part2)]
-// pub fn solve_part2(input: &str) -> u32 {
-//     let input: Vec<&[u8]> = input.lines()
-//         .map(|num| num.as_bytes())
-//         .collect();
-//     0
+
+#[aoc(day3, part2)]
+pub fn solve_part2(input: &[Vec<u8>]) -> u32 {
+    // let input: Vec<&[u8]> = input.lines()
+    //     .map(|num| num.as_bytes())
+    //     .collect();
+    0
     
-// }
+}
 
 #[cfg(test)]
 mod tests {
     use super::{
         BitCounter, count_bits, solve_part1,
+        parse_part2,
         filter_numbers, Criterion, iterated_filter
     };
 
@@ -133,12 +159,12 @@ mod tests {
 
     #[test]
     fn test_input() {
-        assert_eq!(count_bits(INPUT), COUNTS);
+        assert_eq!(count_bits(&parse_part2(INPUT)), COUNTS);
     }
 
     #[test]
     fn test_part1() {
-        assert_eq!(solve_part1(&COUNTS), 198u32);
+        assert_eq!(solve_part1(&parse_part2(INPUT)), 198u32);
     }
 
     #[test]
@@ -164,4 +190,5 @@ mod tests {
         assert_eq!(iterated_filter(&input,Criterion::Oxygen), expected_result);
     }
 
+    
 }
