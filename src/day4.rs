@@ -91,12 +91,26 @@ pub fn read_game(input: &str) -> Game {
     Game {numbers: numbers, boards: boards}
 }
 
+#[aoc(day4,part1)]
+fn solve_part1(game: &Game) -> u32 {
+    let mut numbers: HashSet<u8> = HashSet::new();
+    for &n in game.numbers.iter() {
+        numbers.insert(n);
+        for score in game.boards.iter()
+            .flat_map(|board| board.score(&numbers)) {
+                return score * (n as u32);
+            }
+    }
+    panic!("Finished numbers with no winner")
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
         BingoBoard, BoardBuilder, Game,
-        read_board, read_game
+        read_board, read_game, solve_part1
     };
+    use std::collections::HashSet;
 
     const BOARD1_INPUT: [&str;5] = [
         "22 13 17 11  0",
@@ -105,15 +119,13 @@ mod tests {
         " 6 10  3 18  5",
         " 1 12 20 15 19"];
 
-    const BOARD1: BingoBoard = BingoBoard {
-        rows: [
-            [22,13,17,11,0],
-            [8,2,23,4,24],
-            [21,9,14,16,7],
-            [6,10,3,18,5],
-            [1,12,20,15,19]
-        ]
-    };
+    const BOARD1: BingoBoard = BingoBoard {rows: [
+        [22,13,17,11,0],
+        [8,2,23,4,24],
+        [21,9,14,16,7],
+        [6,10,3,18,5],
+        [1,12,20,15,19]
+    ]};
 
     const FULL_INPUT: &str = "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
@@ -140,5 +152,21 @@ mod tests {
         assert_eq!(read_board(BOARD1_INPUT), BOARD1);
     }
 
+    #[test]
+    fn test_score() {
+        let numbers: HashSet<u8> = HashSet::from([
+            22,13,17,13,4,21,18,7,16,12,11,5,15
+        ]);
+        let unmarked: [u32;12] = [8, 2, 23, 24, 9, 14, 6, 10, 3, 1, 20, 19];
+
+        assert_eq!(BOARD1.score(&numbers), Some(unmarked.iter().sum()));
+    }
+
+    #[test]
+    fn test_part1() {
+        let game = read_game(&FULL_INPUT);
+        let score = solve_part1(&game);
+        assert_eq!(score, 4512);
+    }
 
 }
