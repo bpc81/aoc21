@@ -2,7 +2,7 @@ use std::iter::Iterator;
 // use std::iter::IntoIterator;
 use std::collections::HashSet;
 
-#[derive(Debug,PartialEq,Eq)]
+#[derive(Debug,PartialEq,Eq,Clone)]
 struct BingoBoard {
     rows: [[u8;5];5]
 }
@@ -102,6 +102,23 @@ fn solve_part1(game: &Game) -> u32 {
             }
     }
     panic!("Finished numbers with no winner")
+}
+
+#[aoc(day4,part2)]
+fn solve_part2(game: &Game) -> u32 {
+    let mut numbers: HashSet<u8> = HashSet::new();
+    let mut boards = game.boards.clone();
+    let mut scores: Vec<u32> = Vec::new();
+
+    for &n in game.numbers.iter() {
+        numbers.insert(n);
+        boards.retain(|board| match board.score(&numbers) {
+            Some(score) => {scores.push(score * n as u32); false},
+            None => true
+        });
+        if boards.is_empty() {return scores[scores.len()-1]}
+    }
+    panic!("Exhausted all numbers without a unique loser")
 }
 
 #[cfg(test)]
