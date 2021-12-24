@@ -124,7 +124,7 @@ fn solve_part2(game: &Game) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::{
-        BingoBoard, BoardBuilder, Game,
+        BingoBoard, //BoardBuilder, Game,
         read_board, read_game, solve_part1
     };
     use std::collections::HashSet;
