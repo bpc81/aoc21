@@ -5,15 +5,9 @@ use std::collections::BinaryHeap;
 pub fn solve_part1(input: &str) -> i32 {
     let mut left: BinaryHeap<i32> = BinaryHeap::new();
     let mut right: BinaryHeap<Reverse<i32>> = BinaryHeap::new();
-    let mut positions = input.split(",").map(|n| n.parse::<i32>().unwrap());
-    let mut a = positions.next().unwrap();
-    let mut b = positions.next().unwrap();
-    if a > b { std::mem::swap(&mut a,&mut b) }
-    left.push(a);
-    right.push(Reverse(b));
-
-    for pos in positions {
-        match pos.cmp(left.peek().unwrap()) {
+    
+    for pos in input.split(",").map(|n| n.parse::<i32>().unwrap()) {
+        match pos.cmp(left.peek().unwrap_or(&i32::max_value())) {
             Ordering::Less => {left.push(pos)},
             Ordering::Greater => {right.push(Reverse(pos))},
             Ordering::Equal => {
